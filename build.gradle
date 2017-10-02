@@ -1,6 +1,18 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 mainClassName = 'com.craigstjean.mavenproxy.MavenProxy'
 
 repositories {
@@ -12,6 +24,15 @@ dependencies {
     compile 'ch.qos.logback:logback-core:1.2.3'
 
     compile 'com.fasterxml.jackson.core:jackson-core:2.9.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
+
+    compile 'org.jboss.weld.se:weld-se-core:3.0.1.Final'
+
+    compile 'io.undertow:undertow-core:1.4.12.Final'
+    runtime 'io.undertow:undertow-servlet:1.4.12.Final'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.+'
 }
 
 jar {
