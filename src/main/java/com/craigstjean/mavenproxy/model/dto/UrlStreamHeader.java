@@ -1,15 +1,15 @@
 package com.craigstjean.mavenproxy.model.dto;
 
-public class Header {
+public class UrlStreamHeader {
 
 	private String key;
 	private String value;
 
-	public Header() {
+	public UrlStreamHeader() {
 
 	}
 
-	public Header(String key, String value) {
+	public UrlStreamHeader(String key, String value) {
 		this.key = key;
 		this.value = value;
 	}

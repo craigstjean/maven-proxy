@@ -1,6 +1,6 @@
 {
     "port": 8002,
-    "cache": "$HOME/.maven-proxy",
+    "cache": "~/.maven-proxy",
     "repositories": {
         "maven-central": [
             "https://repo1.maven.org/maven2"

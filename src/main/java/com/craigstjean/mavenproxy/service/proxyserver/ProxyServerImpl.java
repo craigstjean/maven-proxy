@@ -1,5 +1,6 @@
 package com.craigstjean.mavenproxy.service.proxyserver;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -11,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.craigstjean.mavenproxy.model.ProxyConfiguration;
-import com.craigstjean.mavenproxy.model.dto.Header;
 import com.craigstjean.mavenproxy.model.dto.UrlStream;
+import com.craigstjean.mavenproxy.model.dto.UrlStreamHeader;
 import com.craigstjean.mavenproxy.service.converter.UrlConverter;
 import com.craigstjean.mavenproxy.service.urlstream.UrlStreamer;
 
@@ -33,15 +34,22 @@ public class ProxyServerImpl implements ProxyServer {
 	@Inject
 	private UrlStreamer urlStreamer;
 
+	@Inject
+	private ProxyConfiguration configuration;
+
+	private Undertow server;
+
 	@Override
-	public void start(ProxyConfiguration configuration) {
-		Undertow server = Undertow.builder().addHttpListener(configuration.getPort().intValue(), "localhost")
+	public void start() {
+		server = Undertow.builder().addHttpListener(configuration.getPort().intValue(), "localhost")
 				.setHandler(new HttpHandler() {
 					@Override
 					public void handleRequest(final HttpServerExchange exchange) throws Exception {
-						List<String> possibleUrls = converter.getUrlsFrom(exchange.getRequestPath(), configuration);
+						logger.debug("Handling request: " + exchange.getRequestPath());
 
-						int rc = 200;
+						List<String> possibleUrls = converter.getUrlsFrom(exchange.getRequestPath());
+
+						int rc = 0;
 						UrlStream resultStream = null;
 						for (String url : possibleUrls) {
 							logger.debug("Attempting to receive: " + url + "...");
@@ -53,18 +61,33 @@ public class ProxyServerImpl implements ProxyServer {
 								rc = urlStream.getHttpStatusCode();
 							} else {
 								logger.debug("Using cached file: " + urlStream.getFilePath());
+
+								rc = 200;
 								resultStream = urlStream;
 								break;
 							}
 						}
 
+						if (rc == 0) {
+							rc = 404;
+							logger.warn("Could not find repository for: " + exchange.getRequestPath());
+						}
+
 						exchange.setStatusCode(rc);
 						if (rc == 200) {
-							for (Header header : resultStream.getHeaders()) {
+							for (UrlStreamHeader header : resultStream.getHeaders()) {
 								exchange.getResponseHeaders().put(new HttpString(header.getKey()), header.getValue());
 							}
 
-							RandomAccessFile file = new RandomAccessFile(resultStream.getFilePath(), "r");
+							String cachePath = configuration.getCache();
+							if (cachePath.startsWith("~" + File.separator)) {
+								cachePath = System.getProperty("user.home") + cachePath.substring(1);
+							}
+
+							cachePath = cachePath + File.separator + "data" + File.separator
+									+ resultStream.getFilePath();
+
+							RandomAccessFile file = new RandomAccessFile(cachePath, "r");
 							FileChannel fileChannel = file.getChannel();
 
 							exchange.getResponseSender().transferFrom(fileChannel, new IoCallback() {
@@ -108,6 +131,16 @@ public class ProxyServerImpl implements ProxyServer {
 					}
 				}).build();
 		server.start();
+	}
+
+	@Override
+	public void stop() {
+		try {
+			logger.info("Shutting down...");
+			server.stop();
+		} catch (Exception e) {
+			logger.debug("Error shutting down server", e);
+		}
 	}
 
 }

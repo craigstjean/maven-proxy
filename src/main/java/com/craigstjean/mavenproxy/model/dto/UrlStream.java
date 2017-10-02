@@ -6,7 +6,7 @@ import java.util.List;
 public class UrlStream {
 
 	private String filePath;
-	private List<Header> headers = new ArrayList<>();
+	private List<UrlStreamHeader> headers = new ArrayList<>();
 	private int httpStatusCode;
 
 	public boolean isCached() {
@@ -21,7 +21,7 @@ public class UrlStream {
 		this.filePath = filePath;
 	}
 
-	public List<Header> getHeaders() {
+	public List<UrlStreamHeader> getHeaders() {
 		return headers;
 	}
 

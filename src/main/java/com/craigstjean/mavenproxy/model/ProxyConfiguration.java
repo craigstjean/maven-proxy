@@ -4,15 +4,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.enterprise.inject.Alternative;
+
+@Alternative
 public class ProxyConfiguration {
+
+	private static final int DEFAULT_TIMEOUT = 30 * 1000;
 
 	private Long port;
 	private String cache;
 	private Map<String, String[]> repositories = new HashMap<>();
+	private int connectionTimeout = DEFAULT_TIMEOUT;
 
 	public void setDefaults() {
 		port = 8002L;
-		cache = "$HOME/.maven-proxy";
+		cache = "~/.maven-proxy";
+		connectionTimeout = DEFAULT_TIMEOUT;
 
 		repositories.put("maven-central", new String[] { "https://repo1.maven.org/maven2" });
 		repositories.put("jcenter", new String[] { "https://jcenter.bintray.com" });
@@ -24,6 +31,14 @@ public class ProxyConfiguration {
 
 	public void setCache(String cache) {
 		this.cache = cache;
+	}
+
+	public int getConnectionTimeout() {
+		return connectionTimeout;
+	}
+
+	public void setConnectionTimeout(int connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
 	}
 
 	public Long getPort() {
@@ -54,7 +69,7 @@ public class ProxyConfiguration {
 		}
 
 		sb.delete(sb.length() - 2, sb.length());
-		sb.append("}]");
+		sb.append("}, connectionTimeout=").append(connectionTimeout).append(']');
 
 		return sb.toString();
 	}

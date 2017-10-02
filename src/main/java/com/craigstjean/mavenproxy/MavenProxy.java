@@ -2,8 +2,12 @@ package com.craigstjean.mavenproxy;
 
 import java.io.File;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Extension;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +34,27 @@ public class MavenProxy {
 		}
 
 		SeContainerInitializer initializer = SeContainerInitializer.newInstance();
+		initializer.addExtensions(new Extension() {
+
+			@SuppressWarnings("unused")
+			void afterBeanDiscovery(@Observes AfterBeanDiscovery event) {
+				event.addBean().types(ProxyConfiguration.class).scope(ApplicationScoped.class)
+						.createWith(ctx -> configuration).name("ProxyConfiguration");
+			}
+
+		});
+
 		SeContainer container = initializer.initialize();
 
 		ProxyServer server = container.select(ProxyServer.class).get();
-		server.start(configuration);
+		server.start();
 
-		container.close();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				server.stop();
+				container.close();
+			}
+		});
 	}
 
 }

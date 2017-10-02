@@ -3,12 +3,17 @@ package com.craigstjean.mavenproxy.service.converter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import com.craigstjean.mavenproxy.model.ProxyConfiguration;
 
 public class UrlConverterImpl implements UrlConverter {
 
+	@Inject
+	private ProxyConfiguration configuration;
+
 	@Override
-	public List<String> getUrlsFrom(String originatingUrl, ProxyConfiguration configuration) {
+	public List<String> getUrlsFrom(String originatingUrl) {
 		String repository = getRepository(originatingUrl);
 		String relativeUrl = stripRepository(originatingUrl);
 
@@ -43,7 +48,7 @@ public class UrlConverterImpl implements UrlConverter {
 			url = url.substring(1);
 		}
 
-		url = url.substring(getRepository(url).length() + 2);
+		url = url.substring(getRepository(url).length() + 1);
 
 		return url;
 	}
