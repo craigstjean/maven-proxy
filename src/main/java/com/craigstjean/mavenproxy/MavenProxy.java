@@ -52,9 +52,7 @@ public class MavenProxy {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				logger.warn("Shutting down...");
-
 				server.stop();
-				container.close();
 			}
 		});
 	}

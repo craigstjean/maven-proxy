@@ -9,14 +9,17 @@ import javax.enterprise.inject.Alternative;
 @Alternative
 public class ProxyConfiguration {
 
+	private static final String DEFAULT_HOST = "localhost";
 	private static final int DEFAULT_TIMEOUT = 30 * 1000;
 
+	private String host = DEFAULT_HOST;
 	private Long port;
 	private String cache;
 	private Map<String, String[]> repositories = new HashMap<>();
 	private int connectionTimeout = DEFAULT_TIMEOUT;
 
 	public void setDefaults() {
+		host = DEFAULT_HOST;
 		port = 8002L;
 		cache = "~/.maven-proxy";
 		connectionTimeout = DEFAULT_TIMEOUT;
@@ -41,6 +44,14 @@ public class ProxyConfiguration {
 		this.connectionTimeout = connectionTimeout;
 	}
 
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
 	public Long getPort() {
 		return port;
 	}
@@ -61,8 +72,8 @@ public class ProxyConfiguration {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("ProxyConfiguration [").append("port=").append(port).append(", cache=").append(cache)
-				.append(", repositories={");
+		sb.append("ProxyConfiguration [host=").append(host).append(", port=").append(port).append(", cache=")
+				.append(cache).append(", repositories={");
 
 		for (Map.Entry<String, String[]> entry : repositories.entrySet()) {
 			sb.append(entry.getKey()).append('=').append(Arrays.toString(entry.getValue())).append(", ");

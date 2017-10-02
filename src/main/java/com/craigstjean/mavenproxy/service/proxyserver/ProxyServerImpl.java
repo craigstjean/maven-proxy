@@ -41,7 +41,7 @@ public class ProxyServerImpl implements ProxyServer {
 
 	@Override
 	public void start() {
-		server = Undertow.builder().addHttpListener(configuration.getPort().intValue(), "localhost")
+		server = Undertow.builder().addHttpListener(configuration.getPort().intValue(), configuration.getHost())
 				.setHandler(new HttpHandler() {
 					@Override
 					public void handleRequest(final HttpServerExchange exchange) throws Exception {
@@ -108,6 +108,8 @@ public class ProxyServerImpl implements ProxyServer {
 									} catch (Exception e) {
 										// oh well
 									}
+
+									exchange.endExchange();
 								}
 
 								@Override
@@ -125,8 +127,13 @@ public class ProxyServerImpl implements ProxyServer {
 									} catch (Exception e) {
 										// oh well
 									}
+
+									exchange.endExchange();
 								}
 							});
+						} else {
+							exchange.getResponseSender().send("");
+							exchange.endExchange();
 						}
 					}
 				}).build();
