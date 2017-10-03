@@ -26,6 +26,8 @@ public class MavenProxy {
 		if (args.length == 1) {
 			ObjectMapper objectMapper = new ObjectMapper();
 			configuration = objectMapper.readValue(new File(args[0]), ProxyConfiguration.class);
+
+			logger.info("Setting configuration to:\n\t{}", configuration);
 		} else {
 			configuration = new ProxyConfiguration();
 			configuration.setDefaults();
