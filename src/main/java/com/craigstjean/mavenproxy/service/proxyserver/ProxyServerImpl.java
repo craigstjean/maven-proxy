@@ -79,13 +79,8 @@ public class ProxyServerImpl implements ProxyServer {
 								exchange.getResponseHeaders().put(new HttpString(header.getKey()), header.getValue());
 							}
 
-							String cachePath = configuration.getCache();
-							if (cachePath.startsWith("~" + File.separator)) {
-								cachePath = System.getProperty("user.home") + cachePath.substring(1);
-							}
-
-							cachePath = cachePath + File.separator + "data" + File.separator
-									+ resultStream.getFilePath();
+							String cachePath = configuration.getExpandedCachePath() + File.separator + "data"
+									+ File.separator + resultStream.getFilePath();
 
 							RandomAccessFile file = new RandomAccessFile(cachePath, "r");
 							FileChannel fileChannel = file.getChannel();

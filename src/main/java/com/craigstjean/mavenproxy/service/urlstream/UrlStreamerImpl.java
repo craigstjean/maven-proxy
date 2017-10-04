@@ -84,12 +84,7 @@ public class UrlStreamerImpl implements UrlStreamer {
 			if (entity != null && response.getStatusLine().getStatusCode() == 200) {
 				String cacheFilename = UUID.randomUUID().toString().replaceAll("-", "");
 
-				String cachePath = configuration.getCache();
-				if (cachePath.startsWith("~" + File.separator)) {
-					cachePath = System.getProperty("user.home") + cachePath.substring(1);
-				}
-
-				cachePath = cachePath + File.separator + "data" + File.separator;
+				String cachePath = configuration.getExpandedCachePath() + File.separator + "data" + File.separator;
 				new File(cachePath).mkdirs();
 
 				urlStream.setFilePath(cacheFilename);

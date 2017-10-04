@@ -31,11 +31,7 @@ public class CacheImpl implements Cache {
 
 	@PostConstruct
 	public void init() {
-		String path = configuration.getCache();
-		if (path.startsWith("~" + File.separator)) {
-			path = System.getProperty("user.home") + path.substring(1);
-		}
-
+		String path = configuration.getExpandedCachePath();
 		new File(path + File.separator).mkdirs();
 
 		connectionPool = JdbcConnectionPool.create("jdbc:h2:" + configuration.getCache() + "/cache", "sa", "sa");

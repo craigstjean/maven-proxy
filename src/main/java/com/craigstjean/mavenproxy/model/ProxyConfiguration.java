@@ -1,5 +1,6 @@
 package com.craigstjean.mavenproxy.model;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,21 @@ public class ProxyConfiguration {
 
 	public void setCache(String cache) {
 		this.cache = cache;
+	}
+
+	public String getExpandedCachePath() {
+		String cachePath = cache;
+		if (cachePath.startsWith("~")) {
+			String userHome = System.getProperty("user.home");
+
+			if (userHome.endsWith(File.separator)) {
+				cachePath = userHome + cachePath.substring(2);
+			} else {
+				cachePath = userHome + cachePath.substring(1);
+			}
+		}
+
+		return cachePath;
 	}
 
 	public int getConnectionTimeout() {
@@ -72,15 +88,15 @@ public class ProxyConfiguration {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("ProxyConfiguration [host=").append(host).append(", port=").append(port).append(", cache=")
-				.append(cache).append(", repositories={");
+		sb.append("ProxyConfiguration [\n\thost=").append(host).append("\n\tport=").append(port).append("\n\tcache=")
+				.append(cache).append(" (").append(getExpandedCachePath()).append(")\n\trepositories={\n\t\t");
 
 		for (Map.Entry<String, String[]> entry : repositories.entrySet()) {
-			sb.append(entry.getKey()).append('=').append(Arrays.toString(entry.getValue())).append(", ");
+			sb.append(entry.getKey()).append('=').append(Arrays.toString(entry.getValue())).append("\n\t\t");
 		}
 
-		sb.delete(sb.length() - 2, sb.length());
-		sb.append("}, connectionTimeout=").append(connectionTimeout).append(']');
+		sb.delete(sb.length() - 3, sb.length());
+		sb.append("},\n\tconnectionTimeout=").append(connectionTimeout).append(']');
 
 		return sb.toString();
 	}
